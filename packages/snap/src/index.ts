@@ -1,5 +1,7 @@
 import { OnRpcRequestHandler } from '@metamask/snap-types';
 
+const API_KEY = `AYG5PZJS8ITFDX9873NAXKFER7A26WXGM2`;
+
 /**
  * Get a message from the origin. For demonstration purposes only.
  *
@@ -8,6 +10,35 @@ import { OnRpcRequestHandler } from '@metamask/snap-types';
  */
 export const getMessage = (originString: string): string =>
   `Hello, ${originString}!`;
+
+type EtherScanResponse = {
+  status: string;
+  message: string;
+  result: string;
+};
+
+/**
+ * Fetches etherscan in order to see if contract
+ * you are going to be interacting with is verified or not.
+ *
+ * @param contract - The contract to validate.
+ * @returns A message based on the origin.
+ */
+async function isContractValidated(
+  contract: string,
+): Promise<EtherScanResponse> {
+  const response = await (
+    await fetch(
+      `https://api.etherscan.io/api?module=contract&action=getabi&address=${contract}&apikey=${API_KEY}`,
+      {
+        method: 'GET',
+        redirect: 'follow',
+      },
+    )
+  ).json();
+
+  return response;
+}
 
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
@@ -23,17 +54,21 @@ export const getMessage = (originString: string): string =>
 export const onRpcRequest: OnRpcRequestHandler = ({ origin, request }) => {
   switch (request.method) {
     case 'hello':
-      return wallet.request({
-        method: 'snap_confirm',
-        params: [
-          {
-            prompt: getMessage(origin),
-            description:
-              'This custom confirmation is just for display purposes.',
-            textAreaContent:
-              'But you can edit the snap source code to make it do something, if you want to!',
-          },
-        ],
+      return isContractValidated(
+        '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+      ).then((response) => {
+        console.log('Responses:', response);
+        return wallet.request({
+          method: 'snap_confirm',
+          params: [
+            {
+              prompt: getMessage(origin),
+              description:
+                'This custom confirmation is just for display purposes.',
+              textAreaContent: `Contract is ${response.message}`,
+            },
+          ],
+        });
       });
     default:
       throw new Error('Method not found.');

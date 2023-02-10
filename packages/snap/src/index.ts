@@ -52,8 +52,9 @@ async function isContractValidated(
  * @throws If the `snap_confirm` call failed.
  */
 export const onRpcRequest: OnRpcRequestHandler = ({ origin, request }) => {
+  console.log('Request:', request, 'Origin:', origin);
   switch (request.method) {
-    case 'hello':
+    case 'contractOK':
       return isContractValidated(
         '0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413',
       ).then((response) => {
@@ -63,8 +64,23 @@ export const onRpcRequest: OnRpcRequestHandler = ({ origin, request }) => {
           params: [
             {
               prompt: getMessage(origin),
-              description:
-                'This custom confirmation is just for display purposes.',
+              description: 'Example of how to detect that this contract is OK.',
+              textAreaContent: `Contract is ${response.message}`,
+            },
+          ],
+        });
+      });
+    case 'contractKO':
+      return isContractValidated(
+        '0xaB9bc244D798123fDe783fCc1C72d3Bb8C189413',
+      ).then((response) => {
+        console.log('Responses:', response);
+        return wallet.request({
+          method: 'snap_confirm',
+          params: [
+            {
+              prompt: getMessage(origin),
+              description: 'Example of how to detect that this contract is KO.',
               textAreaContent: `Contract is ${response.message}`,
             },
           ],

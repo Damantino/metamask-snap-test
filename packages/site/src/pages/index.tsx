@@ -4,7 +4,6 @@ import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
   connectSnap,
   getSnap,
-  sendHello,
   shouldDisplayReconnectButton,
 } from '../utils';
 import {
@@ -14,6 +13,7 @@ import {
   SendHelloButton,
   Card,
 } from '../components';
+import { sendContractKO, sendContractOK } from '../hutUtils/snap';
 
 const Container = styled.div`
   display: flex;
@@ -117,9 +117,18 @@ const Index = () => {
     }
   };
 
-  const handleSendHelloClick = async () => {
+  const handleSendContractOKClick = async () => {
     try {
-      await sendHello();
+      await sendContractOK();
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const handleSendContractKOClick = async () => {
+    try {
+      await sendContractKO();
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
@@ -185,12 +194,11 @@ const Index = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
-            description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+            title: 'Contract is OK',
+            description: 'Check that the hardcoded contract is OK',
             button: (
               <SendHelloButton
-                onClick={handleSendHelloClick}
+                onClick={handleSendContractOKClick}
                 disabled={!state.installedSnap}
               />
             ),
@@ -202,14 +210,24 @@ const Index = () => {
             !shouldDisplayReconnectButton(state.installedSnap)
           }
         />
-        <Notice>
-          <p>
-            Please note that the <b>snap.manifest.json</b> and{' '}
-            <b>package.json</b> must be located in the server root directory and
-            the bundle must be hosted at the location specified by the location
-            field.
-          </p>
-        </Notice>
+        <Card
+          content={{
+            title: 'Contract is KO',
+            description: 'Check that the hardcoded contract is KO',
+            button: (
+              <SendHelloButton
+                onClick={handleSendContractKOClick}
+                disabled={!state.installedSnap}
+              />
+            ),
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
       </CardContainer>
     </Container>
   );

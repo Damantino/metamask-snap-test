@@ -1,4 +1,5 @@
 import { OnRpcRequestHandler } from '@metamask/snap-types';
+import { OnTransactionHandler } from "@metamask/snap-types";
 
 const API_KEY = `AYG5PZJS8ITFDX9873NAXKFER7A26WXGM2`;
 
@@ -89,4 +90,15 @@ export const onRpcRequest: OnRpcRequestHandler = ({ origin, request }) => {
     default:
       throw new Error('Method not found.');
   }
+};
+
+export const onTransaction: OnTransactionHandler = async ({
+  transaction,
+  chainId,
+}) => {
+  console.log('Transaction:', transaction, 'ChainId:', chainId);
+  const insights = {
+    insights: { hola: 'mundo' },
+  };
+  return insights;
 };

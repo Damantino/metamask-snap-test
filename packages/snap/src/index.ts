@@ -1,5 +1,9 @@
-import { OnRpcRequestHandler } from '@metamask/snap-types';
-import { OnTransactionHandler } from "@metamask/snap-types";
+import {
+  OnRpcRequestHandler,
+  OnTransactionHandler,
+} from '@metamask/snap-types';
+
+import { isObject } from '@metamask/utils';
 
 const API_KEY = `AYG5PZJS8ITFDX9873NAXKFER7A26WXGM2`;
 
@@ -100,5 +104,6 @@ export const onTransaction: OnTransactionHandler = async ({
   const insights = {
     insights: { hola: 'mundo' },
   };
+
   return insights;
 };
